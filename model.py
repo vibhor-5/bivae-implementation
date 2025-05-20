@@ -1,5 +1,13 @@
 import torch 
 
+ACT = {
+    "sigmoid": nn.Sigmoid(),
+    "tanh": nn.Tanh(),
+    "elu": nn.ELU(),
+    "relu": nn.ReLU(),
+    "relu6": nn.ReLU6(),
+}
+
 class BiVAE(nn.Module):
     def __init__(
         self,
