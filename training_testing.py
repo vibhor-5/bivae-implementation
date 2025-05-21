@@ -3,15 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-
-
 import os
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-
 from datetime import datetime
+from model import BiVAE
 
 def train_bivae(
     X_user,
@@ -182,16 +176,25 @@ def train_bivae(
             if val_X_user is not None:
                 msg += f" | Val Loss: {avg_val_loss:.4f}"
             print(msg)
+        
+        if epoch%10 == 0:
+            torch.save(model.state_dict(), os.path.join(checkpoint_dir, f"bivae_epoch_{epoch}.pt"))
+    
+    # Final save
+    final_model_path = os.path.join(checkpoint_dir, f"bivae_final.pt")
+    torch.save(model.state_dict(), final_model_path)
 
     if log_with == "tensorboard" and writer:
         writer.close()
     if log_with == "wandb":
         wandb.finish()
 
+    
+
     # Load best model if saved
-    best_model_path = os.path.join(checkpoint_dir, f"bivae_best.pt")
-    if os.path.exists(best_model_path):
-        model.load_state_dict(torch.load(best_model_path))
+    # best_model_path = os.path.join(checkpoint_dir, f"bivae_best.pt")
+    # if os.path.exists(best_model_path):
+    #     model.load_state_dict(torch.load(best_model_path))
 
     return model
 

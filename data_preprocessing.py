@@ -17,7 +17,18 @@ def load_interaction_tensor(csv_path: str, threshold: float = 0.0, binary: bool 
         item_id_map (dict): Maps original movieId to column index
     """
     # Load with Polars
-    df = pl.read_csv(csv_path)
+    with open(csv_path, "r") as f:
+        rows = [line.strip().split("::") for line in f]
+
+    # Convert to Polars DataFrame with appropriate column names and types
+    df = pl.DataFrame(rows, schema=["userId", "movieId", "rating", "timestamp"]).with_columns([
+        pl.col("userId").cast(pl.Int32),
+        pl.col("movieId").cast(pl.Int32),
+        pl.col("rating").cast(pl.Float32),
+        pl.col("timestamp").cast(pl.Int64)
+    ])
+
+    print(df.head())
 
     # Get unique users/items and build ID maps
     user_ids = df.select("userId").unique().sort("userId").to_series().to_list()

@@ -1,4 +1,7 @@
 import torch 
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
 
 ACT = {
     "sigmoid": nn.Sigmoid(),
@@ -7,6 +10,7 @@ ACT = {
     "relu": nn.ReLU(),
     "relu6": nn.ReLU6(),
 }
+EPS = 1e-10
 
 class BiVAE(nn.Module):
     def __init__(
@@ -28,6 +32,7 @@ class BiVAE(nn.Module):
         self.theta = torch.randn(item_encoder_structure[0], k) * 0.01
         self.beta = torch.randn(user_encoder_structure[0], k) * 0.01
         torch.nn.init.kaiming_uniform_(self.theta, a=np.sqrt(5))
+        torch.nn.init.kaiming_uniform_(self.beta, a=np.sqrt(5))
 
         self.likelihood = likelihood
         self.act_fn = ACT.get(act_fn, None)
