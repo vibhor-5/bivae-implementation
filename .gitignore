@@ -2,9 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+context/
 # C extensions
 *.so
+.cursor/
 
 # Distribution / packaging
 .Python
@@ -23,7 +24,7 @@ var/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual environmentsgit 
 venv/
 ENV/
 env/

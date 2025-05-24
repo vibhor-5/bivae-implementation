@@ -23,6 +23,8 @@ class BiVAE(nn.Module):
         cap_priors,
         feature_dim,
         batch_size,
+        dropout_rate=0.2,
+        use_batch_norm=True
     ):
         super(BiVAE, self).__init__()
 
@@ -52,7 +54,10 @@ class BiVAE(nn.Module):
                 "fc{}".format(i),
                 nn.Linear(user_encoder_structure[i], user_encoder_structure[i + 1]),
             )
+            if use_batch_norm:
+                self.user_encoder.add_module("bn{}".format(i), nn.BatchNorm1d(user_encoder_structure[i + 1]))
             self.user_encoder.add_module("act{}".format(i), self.act_fn)
+            self.user_encoder.add_module("dropout{}".format(i), nn.Dropout(dropout_rate))
         self.user_mu = nn.Linear(user_encoder_structure[-1], k)  # mu
         self.user_std = nn.Linear(user_encoder_structure[-1], k)
 
@@ -63,7 +68,10 @@ class BiVAE(nn.Module):
                 "fc{}".format(i),
                 nn.Linear(item_encoder_structure[i], item_encoder_structure[i + 1]),
             )
+            if use_batch_norm:
+                self.item_encoder.add_module("bn{}".format(i), nn.BatchNorm1d(item_encoder_structure[i + 1]))
             self.item_encoder.add_module("act{}".format(i), self.act_fn)
+            self.item_encoder.add_module("dropout{}".format(i), nn.Dropout(dropout_rate))
         self.item_mu = nn.Linear(item_encoder_structure[-1], k)  # mu
         self.item_std = nn.Linear(item_encoder_structure[-1], k)
 
@@ -103,7 +111,6 @@ class BiVAE(nn.Module):
         return mu + eps * std
 
     def forward(self, x, user=True, beta=None, theta=None):
-
         if user:
             mu, std = self.encode_user(x)
             theta = self.reparameterize(mu, std)

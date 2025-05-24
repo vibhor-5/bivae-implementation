@@ -30,7 +30,9 @@ def train_bivae(
     log_with=None,  # 'tensorboard', 'wandb', or None
     log_dir="logs/",
     checkpoint_dir="checkpoints/",
-    project_name="BiVAE"
+    project_name="BiVAE",
+    dropout_rate=0.2,
+    use_batch_norm=True
 ):
     assert isinstance(X_user, torch.Tensor), "X_user must be a torch.Tensor"
     X_item = X_user.T
@@ -55,6 +57,8 @@ def train_bivae(
         cap_priors=cap_priors,
         feature_dim=feature_dim,
         batch_size=batch_size,
+        dropout_rate=dropout_rate,
+        use_batch_norm=use_batch_norm
     ).to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -78,6 +82,8 @@ def train_bivae(
             "kl_beta": kl_beta,
             "cap_priors": cap_priors,
             "likelihood": likelihood,
+            "dropout_rate": dropout_rate,
+            "use_batch_norm": use_batch_norm
         })
         wandb.watch(model)
 
@@ -189,12 +195,10 @@ def train_bivae(
     if log_with == "wandb":
         wandb.finish()
 
-    
-
     # Load best model if saved
-    # best_model_path = os.path.join(checkpoint_dir, f"bivae_best.pt")
-    # if os.path.exists(best_model_path):
-    #     model.load_state_dict(torch.load(best_model_path))
+    best_model_path = os.path.join(checkpoint_dir, f"bivae_best.pt")
+    if os.path.exists(best_model_path):
+        model.load_state_dict(torch.load(best_model_path))
 
     return model
 

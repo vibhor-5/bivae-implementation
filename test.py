@@ -1,4 +1,5 @@
 import torch
+from utils import get_ground_truth_dict
 from model import BiVAE
 from training_testing import train_bivae, test_model_vectorized
 from data_preprocessing import load_interaction_tensor, split_user_interactions
@@ -6,18 +7,20 @@ from training_testing import test_model_vectorized
 
 # ----- Config -----
 config = {
-    "user_encoder_structure": [512],
-    "item_encoder_structure": [512],
-    "latent_dim": 50,
+    "user_encoder_structure": [512, 256],
+    "item_encoder_structure": [512, 256],
+    "latent_dim": 100,
     "likelihood": "pois",
-    "batch_size": 128,
-    "epochs": 500,
-    "kl_beta": 0.01,
-    "learning_rate": 1e-4,
+    "batch_size": 256,
+    "epochs": 200,
+    "kl_beta": 0.9,
+    "learning_rate": 1e-3,
     "log_with": "wandb",
     "device": torch.device("mps") if torch.backends.mps.is_available() else torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-    "act_fn": "relu",
+    "act_fn": "elu",
     "cap_priors": {"user": False, "item": False},
+    "dropout_rate": 0.2,
+    "use_batch_norm": True,
 }
 
 # ----- Load data -----
@@ -30,26 +33,7 @@ item_inputs = torch.eye(num_items)
 # ----- Load model -----
 user_dim, item_dim = ratings_tensor.shape
 
-def get_ground_truth_dict(test_matrix):
-    """
-    Converts test interaction matrix to a ground truth dictionary.
-    
-    Args:
-        test_matrix (torch.Tensor): [n_users, n_items] interaction matrix.
 
-    Returns:
-        dict: {user_idx: [item indices]}
-    """
-    test_matrix = test_matrix.to_dense() if test_matrix.is_sparse else test_matrix
-    ground_truth_dict = {}
-
-    for user_idx in range(test_matrix.size(0)):
-        item_indices = torch.nonzero(test_matrix[user_idx]).squeeze().tolist()
-        if isinstance(item_indices, int):  # handle single interaction
-            item_indices = [item_indices]
-        ground_truth_dict[user_idx] = item_indices
-
-    return ground_truth_dict
 
 model=BiVAE(
     k=config["latent_dim"],
