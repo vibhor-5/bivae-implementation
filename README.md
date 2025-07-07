@@ -1,6 +1,6 @@
 # BiVAE Implementation
 
-This project implements a Bilateral Variational Autoencoder (BiVAE) for collaborative filtering, specifically designed for recommendation systems. The implementation is based on the paper "Bilateral Variational Autoencoder for Collaborative Filtering" and provides a modular, efficient, and scalable solution for recommendation tasks.
+This project implements a Bilateral Variational Autoencoder (BiVAE) for collaborative filtering, specifically designed for recommendation systems. The implementation is based on the paper ["Bilateral Variational Autoencoder for Collaborative Filtering" from the WSDM'21 proceedings](https://dl.acm.org/doi/10.1145/3437963.3441759) and provides a modular, efficient, and scalable solution for recommendation tasks.
 
 ## Project Structure
 
@@ -143,29 +143,6 @@ trainer.train(epochs=100)
 ```bash
 python test.py --model_path path/to/model/checkpoint.pt --data_path path/to/movielens/data
 ```
-
-## Model Checkpoints
-
-The trainer saves checkpoints in the following format:
-
-- `best_model.pt`: Best model based on validation NDCG
-- `checkpoint_epoch_{N}.pt`: Checkpoint at epoch N
-
-Checkpoints contain:
-
-- Model state dict
-- Optimizer state dicts
-- Training history
-- Current epoch
-- Best NDCG score
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
 
 ## Acknowledgments
 
